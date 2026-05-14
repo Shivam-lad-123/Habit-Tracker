@@ -57,6 +57,9 @@ public static class HabitEndpoints
         group.MapPatch("{id:int}/archive", async (int id, IHabitService habitService, CancellationToken cancellationToken) =>
             Results.Ok(await habitService.ArchiveAsync(id, cancellationToken)));
 
+        group.MapPatch("{id:int}/restore", async (int id, IHabitService habitService, CancellationToken cancellationToken) =>
+            Results.Ok(await habitService.RestoreAsync(id, cancellationToken)));
+
         return endpoints;
     }
 }

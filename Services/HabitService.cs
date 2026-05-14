@@ -104,6 +104,17 @@ public sealed class HabitService : IHabitService
         return ToResponse(habit);
     }
 
+    public async Task<HabitResponse> RestoreAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Habit {id} was not found.");
+
+        habit.IsArchived = false;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return ToResponse(habit);
+    }
+
     public async Task<HabitSummaryResponse> GetSummaryAsync(CancellationToken cancellationToken = default)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
