@@ -109,7 +109,7 @@ public sealed class HabitService : IHabitService
         return ToResponse(habit);
     }
 
-    public async Task<HabitResponse> RestoreAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<HabitResponse> UnarchiveAsync(int id, CancellationToken cancellationToken = default)
     {
         var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException($"Habit {id} was not found.");

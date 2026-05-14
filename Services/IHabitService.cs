@@ -18,7 +18,7 @@ public interface IHabitService
 
     Task<HabitResponse> ArchiveAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<HabitResponse> RestoreAsync(int id, CancellationToken cancellationToken = default);
+    Task<HabitResponse> UnarchiveAsync(int id, CancellationToken cancellationToken = default);
 
     Task<HabitSummaryResponse> GetSummaryAsync(CancellationToken cancellationToken = default);
 
