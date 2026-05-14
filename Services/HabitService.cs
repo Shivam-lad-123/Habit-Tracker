@@ -98,6 +98,11 @@ public sealed class HabitService : IHabitService
         var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException($"Habit {id} was not found.");
 
+        if (habit.IsArchived)
+        {
+            return ToResponse(habit);
+        }
+
         habit.IsArchived = true;
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -108,6 +113,11 @@ public sealed class HabitService : IHabitService
     {
         var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException($"Habit {id} was not found.");
+
+        if (!habit.IsArchived)
+        {
+            return ToResponse(habit);
+        }
 
         habit.IsArchived = false;
         await dbContext.SaveChangesAsync(cancellationToken);
