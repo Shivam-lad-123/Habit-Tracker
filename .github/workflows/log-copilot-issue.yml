@@ -1,0 +1,72 @@
+name: Log Copilot Issue
+
+on:
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  log-issue:
+    if: contains(github.event.issue.assignees[*].login, 'copilot') || contains(github.event.issue.labels[*].name, 'copilot')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log Session Start
+        run: |
+          mkdir -p logs
+          echo "{\"sessionId\":\"gh-issue-${{ github.event.issue.number }}\",\"source\":\"copilot\"}" | bash .github/hooks/log-session-start.sh
+
+      - name: Log Issue Assignment as Tool
+        run: |
+          PAYLOAD=$(cat <<'EOF'
+          {
+            "sessionId": "gh-issue-${{ github.event.issue.number }}",
+            "toolName": "github_issue_assign",
+            "toolArgs": {
+              "issueNumber": ${{ github.event.issue.number }},
+              "issueTitle": "${{ github.event.issue.title }}",
+              "repository": "${{ github.repository }}"
+            }
+          }
+          EOF
+          )
+          echo "$PAYLOAD" | bash .github/hooks/log-tool-use.sh
+
+      - name: Commit Logs
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add logs/ 2>/dev/null || true
+          git commit -m "logs: issue #${{ github.event.issue.number }} assigned to copilot" || true
+          git push || true
+
+      - name: Comment on Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let comment = "✅ **Copilot Assigned**\n\n";
+            comment += "📝 Logs:\n";
+            
+            if (fs.existsSync('logs/sessions.log')) {
+              const sessions = fs.readFileSync('logs/sessions.log', 'utf8').split('\n').filter(l => l);
+              if (sessions.length > 0) {
+                const lastSession = JSON.parse(sessions[sessions.length - 1]);
+                comment += `- Session: \`${lastSession.session_id}\`\n`;
+              }
+            }
+            
+            if (fs.existsSync('logs/tool-executions.jsonl')) {
+              const tools = fs.readFileSync('logs/tool-executions.jsonl', 'utf8').split('\n').filter(l => l);
+              comment += `- Tools logged: ${tools.length}\n`;
+            }
+            
+            comment += "\nLogs are stored in \`.github/logs/\`";
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
