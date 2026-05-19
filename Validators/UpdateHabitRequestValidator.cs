@@ -13,7 +13,8 @@ public sealed class UpdateHabitRequestValidator : AbstractValidator<UpdateHabitR
             .MaximumLength(100);
 
         RuleFor(request => request.Frequency)
-            .IsInEnum();
+            .NotEmpty().WithMessage("Frequency is required.")
+            .IsInEnum().WithMessage("Frequency must be either 'Daily' or 'Weekly'.");
 
         RuleFor(request => request.TargetDays)
             .Custom((targetDays, context) =>
