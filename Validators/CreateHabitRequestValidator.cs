@@ -14,6 +14,7 @@ public sealed class CreateHabitRequestValidator : AbstractValidator<CreateHabitR
 
         RuleFor(request => request.Frequency)
             .IsInEnum()
+            // Note: If HabitFrequency enum is extended, update the error message below to reflect new valid values
             .WithMessage("Frequency must be either 'Daily' or 'Weekly'.");
 
         RuleFor(request => request.TargetDays)
