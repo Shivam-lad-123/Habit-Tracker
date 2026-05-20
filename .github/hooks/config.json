@@ -4,17 +4,17 @@
       "enabled": true,
       "script": ".github/hooks/log-session-start.sh",
       "scriptWindows": ".github/hooks/log-session-start.ps1",
-      "logFile": ".github/logs/sessions.log"
+      "output": "GitHub Actions logs"
     },
     "preToolUse": {
       "enabled": true,
       "script": ".github/hooks/log-tool-use.sh",
       "scriptWindows": ".github/hooks/log-tool-use.ps1",
-      "logFile": ".github/logs/tool-executions.jsonl"
+      "output": "GitHub Actions logs"
     }
   },
   "logging": {
-    "format": "jsonl",
-    "retention_days": 30
+    "format": "json",
+    "destination": "stdout (GitHub Actions logs)"
   }
 }

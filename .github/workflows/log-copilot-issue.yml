@@ -5,8 +5,7 @@ on:
     types: [opened, assigned]
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
 
 jobs:
   log-issue:
@@ -18,7 +17,6 @@ jobs:
 
       - name: Log Session Start
         run: |
-          mkdir -p .github/logs
           echo "{\"sessionId\":\"gh-issue-${{ github.event.issue.number }}\",\"source\":\"copilot\"}" | bash .github/hooks/log-session-start.sh
 
       - name: Log Issue Assignment as Tool
@@ -36,42 +34,3 @@ jobs:
           EOF
           )
           echo "$PAYLOAD" | bash .github/hooks/log-tool-use.sh
-
-      - name: Commit Logs
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .github/logs/ 2>/dev/null || true
-          git commit -m "logs: issue #${{ github.event.issue.number }} assigned to copilot" || true
-          git push || true
-
-      - name: Comment on Issue
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            let comment = "✅ **Copilot Assigned**\n\n";
-            comment += "📝 Logs:\n";
-            
-            if (fs.existsSync('.github/logs/sessions.log')) {
-              const sessions = fs.readFileSync('.github/logs/sessions.log', 'utf8').split('\n').filter(l => l);
-              if (sessions.length > 0) {
-                const lastSession = JSON.parse(sessions[sessions.length - 1]);
-                comment += `- Session: \`${lastSession.session_id}\`\n`;
-              }
-            }
-            
-            if (fs.existsSync('.github/logs/tool-executions.jsonl')) {
-              const tools = fs.readFileSync('.github/logs/tool-executions.jsonl', 'utf8').split('\n').filter(l => l);
-              comment += `- Tools logged: ${tools.length}\n`;
-            }
-            
-            comment += "\nLogs are stored in \`.github/logs/\`";
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });

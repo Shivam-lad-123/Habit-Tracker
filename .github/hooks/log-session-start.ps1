@@ -1,7 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-# sessionStart hook — records when a new agent session begins
-# Logs to: .github/logs/sessions.log
+# sessionStart hook — logs session start to GitHub Actions output
 # Receives JSON via stdin with fields: sessionId, timestamp, cwd, source, initialPrompt
 
 $Payload = $Input | Out-String
@@ -16,8 +15,6 @@ try {
     $Source = "copilot"
 }
 
-$null = New-Item -ItemType Directory -Force -Path ".github/logs"
-
-# Log: {logged_at, event, session_id, source}
+# Log to GitHub Actions (stdout)
 $LogEntry = "{`"logged_at`":`"$LoggedAt`",`"event`":`"sessionStart`",`"session_id`":`"$SessionId`",`"source`":`"$Source`"}"
-Add-Content -Path ".github/logs/sessions.log" -Value $LogEntry
+Write-Host "[SESSION START] $LogEntry"

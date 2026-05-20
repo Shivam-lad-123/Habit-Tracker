@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# sessionStart hook — records when a new agent session begins
-# Logs to: logs/sessions.log
+# sessionStart hook — logs session start to GitHub Actions output
 # Receives JSON via stdin with fields: sessionId, timestamp, cwd, source, initialPrompt
 
 set -euo pipefail
@@ -8,20 +7,17 @@ set -euo pipefail
 PAYLOAD=$(cat)
 LOGGED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Extract fields using python3 or jq
-if command -v python3 &>/dev/null; then
-  SESSION_ID=$(echo "$PAYLOAD" | python3 -c "import sys, json; d = json.load(sys.stdin); print(d.get('sessionId', d.get('session_id', '')))" 2>/dev/null || echo "")
-  SOURCE=$(echo "$PAYLOAD" | python3 -c "import sys, json; d = json.load(sys.stdin); print(d.get('source', 'copilot'))" 2>/dev/null || echo "copilot")
-elif command -v jq &>/dev/null; then
-  SESSION_ID=$(echo "$PAYLOAD" | jq -r '.sessionId // .session_id // ""')
-  SOURCE=$(echo "$PAYLOAD" | jq -r '.source // "copilot"')
-else
-  SESSION_ID=""
+# Extract sessionId using grep and sed
+SESSION_ID=$(echo "$PAYLOAD" | grep -o '"sessionId"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | grep -o ':"[^"]*"' | sed 's/:"//;s/"$//' || echo "")
+if [ -z "$SESSION_ID" ]; then
+  SESSION_ID=$(echo "$PAYLOAD" | grep -o '"session_id"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | grep -o ':"[^"]*"' | sed 's/:"//;s/"$//' || echo "")
+fi
+
+# Extract source
+SOURCE=$(echo "$PAYLOAD" | grep -o '"source"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | grep -o ':"[^"]*"' | sed 's/:"//;s/"$//' || echo "copilot")
+if [ -z "$SOURCE" ]; then
   SOURCE="copilot"
 fi
 
-mkdir -p .github/logs
-
-# Log: {logged_at, event, session_id, source}
-printf '{"logged_at":"%s","event":"sessionStart","session_id":"%s","source":"%s"}\n' \
-  "$LOGGED_AT" "$SESSION_ID" "$SOURCE" >> .github/logs/sessions.log
+# Log to GitHub Actions (stdout)
+echo "[SESSION START] {\"logged_at\":\"$LOGGED_AT\",\"event\":\"sessionStart\",\"session_id\":\"$SESSION_ID\",\"source\":\"$SOURCE\"}"
