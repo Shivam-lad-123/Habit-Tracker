@@ -4,13 +4,13 @@
       "enabled": true,
       "script": ".github/hooks/log-session-start.sh",
       "scriptWindows": ".github/hooks/log-session-start.ps1",
-      "logFile": "logs/sessions.log"
+      "logFile": ".github/logs/sessions.log"
     },
     "preToolUse": {
       "enabled": true,
       "script": ".github/hooks/log-tool-use.sh",
       "scriptWindows": ".github/hooks/log-tool-use.ps1",
-      "logFile": "logs/tool-executions.jsonl"
+      "logFile": ".github/logs/tool-executions.jsonl"
     }
   },
   "logging": {

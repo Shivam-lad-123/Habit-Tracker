@@ -20,8 +20,8 @@ else
   SESSION_ID=""
 fi
 
-mkdir -p logs
+mkdir -p .github/logs
 
 # Log: {logged_at, event, session_id, tool_name, raw_payload}
 printf '{"logged_at":"%s","event":"preToolUse","session_id":"%s","tool_name":"%s","raw":%s}\n' \
-  "$LOGGED_AT" "$SESSION_ID" "$TOOL_NAME" "$PAYLOAD" >> logs/tool-executions.jsonl
+  "$LOGGED_AT" "$SESSION_ID" "$TOOL_NAME" "$PAYLOAD" >> .github/logs/tool-executions.jsonl

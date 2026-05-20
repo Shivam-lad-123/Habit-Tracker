@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 # preToolUse hook — logs every tool execution
-# Logs to: logs/tool-executions.jsonl
+# Logs to: .github/logs/tool-executions.jsonl
 # Receives JSON via stdin with fields: sessionId, timestamp, cwd, toolName, toolArgs
 
 $Payload = $Input | Out-String
@@ -16,8 +16,8 @@ try {
     $SessionId = ""
 }
 
-$null = New-Item -ItemType Directory -Force -Path "logs"
+$null = New-Item -ItemType Directory -Force -Path ".github/logs"
 
 # Log: {logged_at, event, session_id, tool_name, raw_payload}
 $LogEntry = "{`"logged_at`":`"$LoggedAt`",`"event`":`"preToolUse`",`"session_id`":`"$SessionId`",`"tool_name`":`"$ToolName`",`"raw`":$Payload}"
-Add-Content -Path "logs/tool-executions.jsonl" -Value $LogEntry
+Add-Content -Path ".github/logs/tool-executions.jsonl" -Value $LogEntry

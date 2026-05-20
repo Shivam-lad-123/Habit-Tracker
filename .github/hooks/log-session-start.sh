@@ -20,8 +20,8 @@ else
   SOURCE="copilot"
 fi
 
-mkdir -p logs
+mkdir -p .github/logs
 
 # Log: {logged_at, event, session_id, source}
 printf '{"logged_at":"%s","event":"sessionStart","session_id":"%s","source":"%s"}\n' \
-  "$LOGGED_AT" "$SESSION_ID" "$SOURCE" >> logs/sessions.log
+  "$LOGGED_AT" "$SESSION_ID" "$SOURCE" >> .github/logs/sessions.log

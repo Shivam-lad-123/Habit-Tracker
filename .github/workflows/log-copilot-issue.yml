@@ -18,7 +18,7 @@ jobs:
 
       - name: Log Session Start
         run: |
-          mkdir -p logs
+          mkdir -p .github/logs
           echo "{\"sessionId\":\"gh-issue-${{ github.event.issue.number }}\",\"source\":\"copilot\"}" | bash .github/hooks/log-session-start.sh
 
       - name: Log Issue Assignment as Tool
@@ -41,7 +41,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add logs/ 2>/dev/null || true
+          git add .github/logs/ 2>/dev/null || true
           git commit -m "logs: issue #${{ github.event.issue.number }} assigned to copilot" || true
           git push || true
 
@@ -54,16 +54,16 @@ jobs:
             let comment = "✅ **Copilot Assigned**\n\n";
             comment += "📝 Logs:\n";
             
-            if (fs.existsSync('logs/sessions.log')) {
-              const sessions = fs.readFileSync('logs/sessions.log', 'utf8').split('\n').filter(l => l);
+            if (fs.existsSync('.github/logs/sessions.log')) {
+              const sessions = fs.readFileSync('.github/logs/sessions.log', 'utf8').split('\n').filter(l => l);
               if (sessions.length > 0) {
                 const lastSession = JSON.parse(sessions[sessions.length - 1]);
                 comment += `- Session: \`${lastSession.session_id}\`\n`;
               }
             }
             
-            if (fs.existsSync('logs/tool-executions.jsonl')) {
-              const tools = fs.readFileSync('logs/tool-executions.jsonl', 'utf8').split('\n').filter(l => l);
+            if (fs.existsSync('.github/logs/tool-executions.jsonl')) {
+              const tools = fs.readFileSync('.github/logs/tool-executions.jsonl', 'utf8').split('\n').filter(l => l);
               comment += `- Tools logged: ${tools.length}\n`;
             }
             
