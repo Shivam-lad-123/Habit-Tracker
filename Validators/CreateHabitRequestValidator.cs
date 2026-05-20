@@ -6,6 +6,8 @@ namespace HabitTracker.Validators;
 
 public sealed class CreateHabitRequestValidator : AbstractValidator<CreateHabitRequest>
 {
+    private static readonly string ValidFrequencies = GetValidFrequenciesMessage();
+
     public CreateHabitRequestValidator()
     {
         RuleFor(request => request.Name)
@@ -14,7 +16,7 @@ public sealed class CreateHabitRequestValidator : AbstractValidator<CreateHabitR
 
         RuleFor(request => request.Frequency)
             .IsInEnum()
-            .WithMessage("Frequency must be one of the following values: Daily, Weekly.");
+            .WithMessage($"Frequency must be one of the following values: {ValidFrequencies}.");
 
         RuleFor(request => request.TargetDays)
             .Custom((targetDays, context) =>
@@ -35,5 +37,11 @@ public sealed class CreateHabitRequestValidator : AbstractValidator<CreateHabitR
                     }
                 }
             });
+    }
+
+    private static string GetValidFrequenciesMessage()
+    {
+        var values = Enum.GetNames(typeof(HabitFrequency));
+        return string.Join(", ", values);
     }
 }
