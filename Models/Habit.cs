@@ -12,6 +12,8 @@ public sealed class Habit
 
     public int? TargetDays { get; set; }
 
+    public string? ColorHex { get; set; }
+
     public int CurrentStreak { get; set; }
 
     public int LongestStreak { get; set; }

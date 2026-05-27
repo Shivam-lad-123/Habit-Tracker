@@ -8,6 +8,7 @@ public sealed record HabitResponse(
     string? Description,
     HabitFrequency Frequency,
     int? TargetDays,
+    string? ColorHex,
     int CurrentStreak,
     int LongestStreak,
     DateOnly? LastCompletedDate,

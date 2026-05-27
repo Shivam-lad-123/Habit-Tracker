@@ -27,6 +27,9 @@ public sealed class HabitTrackerDbContext : DbContext
             entity.Property(habit => habit.Description)
                 .HasMaxLength(500);
 
+            entity.Property(habit => habit.ColorHex)
+                .HasMaxLength(7);
+
             entity.Property(habit => habit.Frequency)
                 .HasConversion<int>()
                 .IsRequired();

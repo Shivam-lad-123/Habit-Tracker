@@ -2,11 +2,16 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Name,
 
-    [string]$ProjectPath = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path,
+    [string]$ProjectPath,
     [string]$Context = "HabitTrackerDbContext"
 )
 
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
+    $scriptDirectory = if ($PSScriptRoot) { $PSScriptRoot } elseif ($PSCommandPath) { Split-Path -Parent $PSCommandPath } else { Get-Location }
+    $ProjectPath = (Resolve-Path (Join-Path $scriptDirectory "..\..\..\..")).Path
+}
 
 Push-Location $ProjectPath
 try {
