@@ -43,12 +43,10 @@ public sealed class HabitService : IHabitService
     {
         var habit = new Habit
         {
-            Name = request.Name.Trim(),
-            Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim(),
-            Frequency = request.Frequency,
-            TargetDays = request.Frequency == HabitFrequency.Weekly ? request.TargetDays : null,
             CreatedAt = DateTime.UtcNow
         };
+
+        ApplyRequest(habit, request.Name, request.Description, request.Frequency, request.TargetDays);
 
         dbContext.Habits.Add(habit);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -58,13 +56,9 @@ public sealed class HabitService : IHabitService
 
     public async Task<HabitResponse> UpdateAsync(int id, UpdateHabitRequest request, CancellationToken cancellationToken = default)
     {
-        var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Habit {id} was not found.");
+        var habit = await GetTrackedHabitAsync(id, cancellationToken);
 
-        habit.Name = request.Name.Trim();
-        habit.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
-        habit.Frequency = request.Frequency;
-        habit.TargetDays = request.Frequency == HabitFrequency.Weekly ? request.TargetDays : null;
+        ApplyRequest(habit, request.Name, request.Description, request.Frequency, request.TargetDays);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -73,8 +67,7 @@ public sealed class HabitService : IHabitService
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Habit {id} was not found.");
+        var habit = await GetTrackedHabitAsync(id, cancellationToken);
 
         dbContext.Habits.Remove(habit);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -82,8 +75,7 @@ public sealed class HabitService : IHabitService
 
     public async Task<HabitResponse> CompleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Habit {id} was not found.");
+        var habit = await GetTrackedHabitAsync(id, cancellationToken);
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         streakService.MarkCompleted(habit, today);
@@ -95,8 +87,7 @@ public sealed class HabitService : IHabitService
 
     public async Task<HabitResponse> ArchiveAsync(int id, CancellationToken cancellationToken = default)
     {
-        var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Habit {id} was not found.");
+        var habit = await GetTrackedHabitAsync(id, cancellationToken);
 
         if (habit.IsArchived)
         {
@@ -111,8 +102,7 @@ public sealed class HabitService : IHabitService
 
     public async Task<HabitResponse> UnarchiveAsync(int id, CancellationToken cancellationToken = default)
     {
-        var habit = await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
-            ?? throw new KeyNotFoundException($"Habit {id} was not found.");
+        var habit = await GetTrackedHabitAsync(id, cancellationToken);
 
         if (!habit.IsArchived)
         {
@@ -166,6 +156,25 @@ public sealed class HabitService : IHabitService
             habit.LastCompletedDate,
             habit.IsArchived,
             habit.CreatedAt);
+    }
+
+    private static void ApplyRequest(Habit habit, string name, string? description, HabitFrequency frequency, int? targetDays)
+    {
+        habit.Name = name.Trim();
+        habit.Description = NormalizeDescription(description);
+        habit.Frequency = frequency;
+        habit.TargetDays = frequency == HabitFrequency.Weekly ? targetDays : null;
+    }
+
+    private async Task<Habit> GetTrackedHabitAsync(int id, CancellationToken cancellationToken)
+    {
+        return await dbContext.Habits.FirstOrDefaultAsync(habit => habit.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Habit {id} was not found.");
+    }
+
+    private static string? NormalizeDescription(string? description)
+    {
+        return string.IsNullOrWhiteSpace(description) ? null : description.Trim();
     }
 
     private static System.Linq.Expressions.Expression<Func<Habit, HabitResponse>> ToResponseExpression()
