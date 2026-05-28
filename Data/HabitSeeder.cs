@@ -17,6 +17,7 @@ public static class HabitSeeder
             Name = "Morning Run",
             Description = "Daily cardio habit that is due today.",
             Frequency = HabitFrequency.Daily,
+            ColorHex = "#2D6CDF",
             CurrentStreak = 2,
             LongestStreak = 5,
             LastCompletedDate = yesterday,
@@ -29,6 +30,7 @@ public static class HabitSeeder
             Name = "Read 20 Pages",
             Description = "Already completed today so complete should return conflict.",
             Frequency = HabitFrequency.Daily,
+            ColorHex = "#16A34A",
             CurrentStreak = 3,
             LongestStreak = 4,
             LastCompletedDate = today,
@@ -42,6 +44,7 @@ public static class HabitSeeder
             Description = "Weekly habit that has not been completed this week.",
             Frequency = HabitFrequency.Weekly,
             TargetDays = 3,
+            ColorHex = "#F59E0B",
             CurrentStreak = 1,
             LongestStreak = 2,
             LastCompletedDate = lastWeek,
@@ -55,6 +58,7 @@ public static class HabitSeeder
             Description = "Weekly habit already completed this week so it should not appear due today.",
             Frequency = HabitFrequency.Weekly,
             TargetDays = 2,
+            ColorHex = "#8B5CF6",
             CurrentStreak = 4,
             LongestStreak = 6,
             LastCompletedDate = startOfThisWeek,
@@ -67,6 +71,7 @@ public static class HabitSeeder
             Name = "Archived Stretching",
             Description = "Archived habit for testing the includeArchived filter.",
             Frequency = HabitFrequency.Daily,
+            ColorHex = "#64748B",
             CurrentStreak = 0,
             LongestStreak = 1,
             LastCompletedDate = null,
@@ -89,6 +94,7 @@ public static class HabitSeeder
         existingHabit.Description = habit.Description;
         existingHabit.Frequency = habit.Frequency;
         existingHabit.TargetDays = habit.TargetDays;
+        existingHabit.ColorHex = habit.ColorHex;
         existingHabit.CurrentStreak = habit.CurrentStreak;
         existingHabit.LongestStreak = habit.LongestStreak;
         existingHabit.LastCompletedDate = habit.LastCompletedDate;
